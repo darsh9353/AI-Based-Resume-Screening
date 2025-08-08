@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Screening System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px dashed #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .upload-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .file-label:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .requirements-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .requirements-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .upload-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .upload-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            margin-top: 30px;
+        }
+
+        .candidate-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+
+        .candidate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .candidate-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .match-score {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .score-high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .score-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .score-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .skills-section {
+            margin: 20px 0;
+        }
+
+        .skills-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .skill-tag {
+            background: #e9ecef;
+            color: #495057;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+
+        .skill-matched {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .skill-missing {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .interview-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .interview-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .question-list {
+            list-style: none;
+        }
+
+        .question-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .question-list li:last-child {
+            border-bottom: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI Resume Screening System</h1>
+            <p>Upload resumes and get AI-powered candidate analysis and interview recommendations</p>
+        </div>
+
+        <div class="main-content">
+            <div class="upload-section">
+                <h2>📄 Upload Resume</h2>
+                <input type="file" id="resumeFile" class="file-input" accept=".pdf,.docx,.txt,.doc">
+                <label for="resumeFile" class="file-label">Choose Resume File</label>
+                
+                <div style="margin: 20px 0;">
+                    <label for="jobRequirements" style="display: block; margin-bottom: 10px; font-weight: 600;">
+                        🎯 Job Requirements (comma-separated):
+                    </label>
+                    <textarea 
+                        id="jobRequirements" 
+                        class="requirements-input" 
+                        placeholder="e.g., Python, JavaScript, React, Node.js, SQL"
+                        rows="3"
+                    >Python, JavaScript, React</textarea>
+                </div>
+
+                <button id="uploadBtn" class="upload-btn" onclick="uploadResume()">
+                    🚀 Analyze Resume
+                </button>
+            </div>
+
+            <div id="results" class="results-section"></div>
+            <div id="stats" class="stats-section"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentFile = null;
+
+        document.getElementById('resumeFile').addEventListener('change', function(e) {
+            currentFile = e.target.files[0];
+            if (currentFile) {
+                document.querySelector('.file-label').textContent = `Selected: ${currentFile.name}`;
+            }
+        });
+
+        async function uploadResume() {
+            if (!currentFile) {
+                alert('Please select a resume file first!');
+                return;
+            }
+
+            const jobRequirements = document.getElementById('jobRequirements').value;
+            const uploadBtn = document.getElementById('uploadBtn');
+            const resultsDiv = document.getElementById('results');
+
+            // Show loading
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = '⏳ Analyzing...';
+            resultsDiv.innerHTML = '<div class="loading">Analyzing resume with AI...</div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', currentFile);
+                formData.append('job_requirements', jobRequirements);
+
+                const response = await fetch('http://localhost:5000/api/upload-resume', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResults(data);
+                    loadStatistics();
+                } else {
+                    resultsDiv.innerHTML = `<div class="error">❌ Error: ${data.error}</div>`;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = '🚀 Analyze Resume';
+            }
+        }
+
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            const candidate = data.resume_data;
+            const score = data.match_score;
+            const matchedSkills = data.matched_skills;
+            const missingSkills = data.missing_skills;
+            const interview = data.interview_recommendations;
+
+            let scoreClass = 'score-low';
+            if (score >= 80) scoreClass = 'score-high';
+            else if (score >= 50) scoreClass = 'score-medium';
+
+            resultsDiv.innerHTML = `
+                <div class="candidate-card">
+                    <div class="candidate-header">
+                        <div class="candidate-name">${candidate.name}</div>
+                        <div class="match-score ${scoreClass}">${score.toFixed(1)}% Match</div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <strong>📧 Email:</strong> ${candidate.email}<br>
+                        <strong>📞 Phone:</strong> ${candidate.phone}<br>
+                        <strong>🎓 Education:</strong> ${candidate.education}<br>
+                        <strong>💼 Experience:</strong> ${candidate.experience}
+                    </div>
+
+                    <div class="skills-section">
+                        <div class="skills-title">✅ Matched Skills:</div>
+                        <div class="skills-list">
+                            ${matchedSkills.map(skill => `<span class="skill-tag skill-matched">${skill}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div class="skills-section">
+                        <div class="skills-title">❌ Missing Skills:</div>
+                        <div class="skills-list">
+                            ${missingSkills.map(skill => `<span class="skill-tag skill-missing">${skill}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div class="interview-section">
+                        <div class="interview-title">🎯 Interview Recommendations</div>
+                        <div><strong>Format:</strong> ${interview.format}</div>
+                        <div><strong>Duration:</strong> ${interview.duration}</div>
+                        <div style="margin-top: 15px;">
+                            <strong>Sample Questions:</strong>
+                            <ul class="question-list">
+                                ${interview.questions.map(q => `<li>• ${q}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadStatistics() {
+            try {
+                const response = await fetch('http://localhost:5000/api/statistics');
+                const stats = await response.json();
+                
+                const statsDiv = document.getElementById('stats');
+                statsDiv.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.total_candidates}</div>
+                        <div class="stat-label">Total Candidates</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.average_score}%</div>
+                        <div class="stat-label">Average Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.high_match}</div>
+                        <div class="stat-label">High Match (>80%)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.medium_match}</div>
+                        <div class="stat-label">Medium Match (50-80%)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${stats.low_match}</div>
+                        <div class="stat-label">Low Match (<50%)</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        // Load initial statistics
+        loadStatistics();
+    </script>
+</body>
+</html>
